@@ -7,28 +7,18 @@ interface SearchInputProps {
 }
 
 function SearchInput(props: SearchInputProps) {
-  const { searchQuery, onSearchQueryChange, onSearchClick } = props;
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearchQueryChange(e.target.value);
-  };
-
-  const handleClearClick = () => {
-    onSearchQueryChange('');
-  };
+  const { searchQuery: searchQuery, onSearchQueryChange: onSearchQueryChange, onSearchClick } = props;
 
   return (
     <div id="top-section">
       <input
         type="text"
         value={searchQuery}
-        onChange={handleInputChange}
+        onClick={() => onSearchQueryChange('')}
+        onChange={(e) => onSearchQueryChange(e.target.value)}
       />
       <button type="button" onClick={onSearchClick}>
         Search
-      </button>
-      <button type="button" onClick={handleClearClick}>
-        Clear
       </button>
     </div>
   );
