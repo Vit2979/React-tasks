@@ -5,7 +5,7 @@ import SummaryCard from './components/SummaryCard';
 interface Planet {
   climate: string;
   rotation_period: number;
-  orbital_period: number; 
+  orbital_period: number;
   name: string;
   terrain: string;
 }
@@ -26,6 +26,14 @@ class App extends Component<object, AppState> {
     };
   }
 
+  componentDidMount() {
+    const searchQuery = localStorage.getItem('searchQuery');
+    if (searchQuery) {
+      this.setState({ searchQuery });
+      this.fetchSearchResults(searchQuery);
+    }
+  }
+
   fetchSearchResults = async (query: string) => {
     try {
       this.setState({ loading: true });
@@ -41,29 +49,33 @@ class App extends Component<object, AppState> {
         searchResults: data.results || [],
         loading: false,
       });
+
+      localStorage.setItem('searchQuery', query);
     } catch (error) {
       this.setState({ loading: false });
     }
   };
 
   handleSearchClick = () => {
-    const { searchQuery: searchQuery } = this.state;
+    const { searchQuery } = this.state;
     const trimmedSearchQuery = searchQuery.trim();
 
     this.fetchSearchResults(trimmedSearchQuery);
   };
 
+  handleSearchQueryChange = (query: string) => {
+    this.setState({ searchQuery: query });
+  };
+
   render() {
-    const { searchQuery: searchQuery, searchResults, loading } = this.state;
+    const { searchQuery, searchResults, loading } = this.state;
 
     return (
       <div className="container">
         <div>
           <SearchInput
             searchQuery={searchQuery}
-            onSearchQueryChange={(query: string) =>
-              this.setState({ searchQuery: query })
-            }
+            onSearchQueryChange={this.handleSearchQueryChange}
             onSearchClick={this.handleSearchClick}
           />
 
