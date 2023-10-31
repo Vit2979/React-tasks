@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SearchInput from './components/SearchInput';
 import SummaryCard from './components/SummaryCard';
+import './App.css';
 
 interface Planet {
   climate: string;
