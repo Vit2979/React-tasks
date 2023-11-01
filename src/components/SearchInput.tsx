@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 interface SearchInputProps {
   searchQuery: string;
@@ -6,26 +6,28 @@ interface SearchInputProps {
   onSearchClick: () => void;
 }
 
-function SearchInput(props: SearchInputProps) {
-  const { searchQuery, onSearchQueryChange, onSearchClick } = props;
+class SearchInput extends React.Component<SearchInputProps> {
+  componentDidMount() {
+    this.props.onSearchClick();
+  }
 
-  useEffect(() => {
-    onSearchClick();
-  }, [onSearchClick]);
+  render() {
+    const { searchQuery, onSearchQueryChange, onSearchClick } = this.props;
 
-  return (
-    <div id="top-section">
-      <input
-        type="text"
-        value={searchQuery}
-        onClick={() => onSearchQueryChange('')}
-        onChange={(e) => onSearchQueryChange(e.target.value)}
-      />
-      <button type="button" onClick={onSearchClick}>
-        Search
-      </button>
-    </div>
-  );
+    return (
+      <div id="top-section">
+        <input
+          type="text"
+          value={searchQuery}
+          onClick={() => onSearchQueryChange('')}
+          onChange={(e) => onSearchQueryChange(e.target.value)}
+        />
+        <button type="button" onClick={onSearchClick}>
+          Search
+        </button>
+      </div>
+    );
+  }
 }
 
 export default SearchInput;
