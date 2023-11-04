@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SearchInput from './components/SearchInput';
 import SummaryCard from './components/SummaryCard';
+import Pagination from './components/Pagination';
 import './App.css';
 
 interface Planet {
@@ -15,6 +16,8 @@ interface AppState {
   searchQuery: string;
   searchResults: Planet[];
   loading: boolean;
+  currentPage: number;
+  totalPages: number;
 }
 
 class App extends Component<object, AppState> {
@@ -24,6 +27,8 @@ class App extends Component<object, AppState> {
       searchQuery: '',
       searchResults: [],
       loading: false,
+      currentPage: 1,
+      totalPages: 1,
     };
   }
 
@@ -35,13 +40,13 @@ class App extends Component<object, AppState> {
     }
   }
 
-  fetchSearchResults = async (query: string) => {
+  fetchSearchResults = async (query: string, page: number = 1) => {
     try {
       this.setState({ loading: true });
 
       const url = query
-        ? `https://swapi.dev/api/planets/?search=${query}`
-        : 'https://swapi.dev/api/planets/';
+        ? `https://swapi.dev/api/planets/?search=${query}&page=${page}`
+        : `https://swapi.dev/api/planets/?page=${page}`;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -49,6 +54,8 @@ class App extends Component<object, AppState> {
       this.setState({
         searchResults: data.results || [],
         loading: false,
+        currentPage: page,
+        totalPages: Math.ceil(data.count / 10),
       });
 
       localStorage.setItem('searchQuery', query);
@@ -68,8 +75,13 @@ class App extends Component<object, AppState> {
     this.setState({ searchQuery: query });
   };
 
+  handlePageChange = (page: number) => {
+    const { searchQuery } = this.state;
+    this.fetchSearchResults(searchQuery, page);
+  };
+
   render() {
-    const { searchQuery, searchResults, loading } = this.state;
+    const { searchQuery, searchResults, loading, currentPage, totalPages } = this.state;
 
     return (
       <div className="container">
@@ -90,6 +102,12 @@ class App extends Component<object, AppState> {
                 ))}
             </div>
           )}
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={this.handlePageChange}
+          />
         </div>
       </div>
     );
