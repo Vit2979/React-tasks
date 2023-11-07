@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import './SummaryCard.css';
 
 interface SummaryCardProps {
   planet: {
@@ -10,16 +11,42 @@ interface SummaryCardProps {
   };
 }
 
-const SummaryCard: React.FC<SummaryCardProps> = function SummaryCard({
-  planet,
-}) {
+const SummaryCard: React.FC<SummaryCardProps> = ({ planet }) => {
+  const [isClicked, setIsClicked] = useState(false);
+
+  const handleClick = () => {
+    setIsClicked(!isClicked);
+  };
+
+  const handleDuplicateClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsClicked(false);
+  };
+
   return (
-    <div className="search-card">
-      <h3>{planet.name}</h3>
-      <p>Climate: {planet.climate}</p>
-      <p>Orbital period: {planet.orbital_period}</p>
-      <p>Rotation period: {planet.rotation_period}</p>
-      <p>Terrain: {planet.terrain}</p>
+    <div className="summary-card-container">
+      <div
+        className={`summary-card ${isClicked ? 'clicked' : ''}`}
+        onClick={handleClick}
+      >
+        <h3>{planet.name}</h3>
+        <p>Climate: {planet.climate}</p>
+        <p>Orbital period: {planet.orbital_period}</p>
+        <p>Rotation period: {planet.rotation_period}</p>
+        <p>Terrain: {planet.terrain}</p>
+      </div>
+      {isClicked && (
+        <>
+          <div className="summary-card-overlay" onClick={handleDuplicateClick} />
+          <div className="summary-card-duplicate" onClick={handleDuplicateClick}>
+            <h3>{planet.name}</h3>
+            <p>Climate: {planet.climate}</p>
+            <p>Orbital period: {planet.orbital_period}</p>
+            <p>Rotation period: {planet.rotation_period}</p>
+            <p>Terrain: {planet.terrain}</p>
+          </div>
+        </>
+      )}
     </div>
   );
 };
