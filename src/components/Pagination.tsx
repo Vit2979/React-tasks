@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -9,9 +8,20 @@ interface PaginationProps {
   onItemsPerPageChange: (itemsPerPage: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  itemsPerPage,
+  onItemsPerPageChange,
+}) => {
   const handlePageClick = (page: number) => {
     onPageChange(page);
+  };
+
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newItemsPerPage = parseInt(e.target.value);
+    onItemsPerPageChange(newItemsPerPage);
   };
 
   const renderPageNumbers = () => {
@@ -35,6 +45,15 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   return (
     <div className="pagination">
       {renderPageNumbers()}
+      <div>
+        <label htmlFor="itemsPerPage">Items per Page:</label>
+        <input
+          type="number"
+          id="itemsPerPage"
+          value={itemsPerPage}
+          onChange={handleItemsPerPageChange}
+        />
+      </div>
     </div>
   );
 };
