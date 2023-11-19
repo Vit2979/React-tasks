@@ -37,8 +37,14 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ planet }) => {
       </div>
       {isClicked && (
         <>
-          <div className="summary-card-overlay" onClick={handleDuplicateClick} />
-          <div className="summary-card-duplicate" onClick={handleDuplicateClick}>
+          <div
+            className="summary-card-overlay"
+            onClick={handleDuplicateClick}
+          />
+          <div
+            className="summary-card-duplicate"
+            onClick={handleDuplicateClick}
+          >
             <h3>{planet.name}</h3>
             <p>Climate: {planet.climate}</p>
             <p>Orbital period: {planet.orbital_period}</p>
