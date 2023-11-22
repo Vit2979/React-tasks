@@ -15,45 +15,33 @@ const Pagination: React.FC<PaginationProps> = ({
   itemsPerPage,
   onItemsPerPageChange,
 }) => {
-  const handlePageClick = (page: number) => {
-    onPageChange(page);
-  };
-
-  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newItemsPerPage = parseInt(e.target.value);
-    onItemsPerPageChange(newItemsPerPage);
-  };
-
-  const renderPageNumbers = () => {
-    const pageNumbers = [];
-
-    for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(
-        <button
-          key={i}
-          className={i === currentPage ? 'active' : ''}
-          onClick={() => handlePageClick(i)}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    return pageNumbers;
-  };
+  const pageNumbers = Array.from(Array(totalPages).keys()).map((num) => num + 1);
 
   return (
-    <div className="pagination">
-      {renderPageNumbers()}
-      <div>
-        <label htmlFor="itemsPerPage">Items per Page:</label>
-        <input
-          type="number"
-          id="itemsPerPage"
-          value={itemsPerPage}
-          onChange={handleItemsPerPageChange}
-        />
-      </div>
+    <div>
+      <button disabled={currentPage === 1} onClick={() => onPageChange(currentPage - 1)}>
+        Previous
+      </button>
+      {pageNumbers.map((pageNumber) => (
+        <button
+          key={pageNumber}
+          className={pageNumber === currentPage ? 'active' : undefined}
+          onClick={() => onPageChange(pageNumber)}
+        >
+          {pageNumber}
+        </button>
+      ))}
+      <button
+        disabled={currentPage === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+      >
+        Next
+      </button>
+      <select value={itemsPerPage} onChange={(e) => onItemsPerPageChange(Number(e.target.value))}>
+        <option value={10}>10</option>
+        <option value={20}>20</option>
+        <option value={50}>50</option>
+      </select>
     </div>
   );
 };

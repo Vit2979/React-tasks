@@ -1,132 +1,82 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from './redux/store';
+import { setSearchQuery, fetchSearchResults, setPage, selectSearchQuery, selectSearchResults, selectLoading, selectCurrentPage, selectTotalPages, selectItemsPerPage } from './redux/searchSlice';
 import SearchInput from './components/SearchInput';
 import SummaryCard from './components/SummaryCard';
 import Pagination from './components/Pagination';
 import './App.css';
-interface Planet {
-  climate: string;
-  rotation_period: number;
-  orbital_period: number;
-  name: string;
-  terrain: string;
-}
-interface AppState {
-  searchQuery: string;
-  searchResults: Planet[];
-  loading: boolean;
-  currentPage: number;
-  totalPages: number;
-  itemsPerPage: number;
-}
-class App extends Component<object, AppState> {
-  constructor(props: object) {
-    super(props);
-    this.state = {
-      searchQuery: '',
-      searchResults: [],
-      loading: false,
-      currentPage: 1,
-      totalPages: 1,
-      itemsPerPage: 10,
-    };
-  }
-  componentDidMount() {
-    const searchQuery = localStorage.getItem('searchQuery');
-    if (searchQuery) {
-      this.setState({ searchQuery });
-      this.fetchSearchResults(searchQuery);
-    }
-  }
-  fetchSearchResults = async (query: string, page: number = 1) => {
-    try {
-      this.setState({ loading: true });
 
-      const url = query
-        ? `https://swapi.dev/api/planets/?search=${query}&page=${page}`
-        : `https://swapi.dev/api/planets/?page=${page}`;
+const App: React.FC = () => {
+  const searchQuery = useSelector((state: RootState) => state.search.query);
+  const searchResults = useSelector((state: RootState) => state.search.results);
+  const loading = useSelector((state: RootState) => state.search.loading);
+  const currentPage = useSelector((state: RootState) => state.search.currentPage);
+  const totalPages = useSelector((state: RootState) => state.search.totalPages);
+  const itemsPerPage = useSelector((state: RootState) => state.search.itemsPerPage);
 
-      const response = await fetch(url);
-      const data = await response.json();
+  const dispatch = useDispatch<AppDispatch>(); // Исправленный тип для диспетчера
 
-      this.setState({
-        searchResults: data.results || [],
-        loading: false,
-        currentPage: page,
-        totalPages: Math.ceil(data.count / this.state.itemsPerPage),
-      });
-
-      localStorage.setItem('searchQuery', query);
-    } catch (error) {
-      this.setState({ loading: false });
-    }
-  };
-  handleSearchClick = () => {
-    const { searchQuery } = this.state;
+    const handleSearchClick = async () => {
     const trimmedSearchQuery = searchQuery.trim();
+    await dispatch(setSearchQuery(trimmedSearchQuery));
+    await dispatch(fetchSearchResults({ query: trimmedSearchQuery, page: 1, itemsPerPage }));
+  };
 
-    this.fetchSearchResults(trimmedSearchQuery);
+  const handleSearchQueryChange = (query: string) => {
+    dispatch(setSearchQuery(query));
   };
-  handleSearchQueryChange = (query: string) => {
-    this.setState({ searchQuery: query });
-  };
-  handlePageChange = (page: number) => {
-    const { searchQuery } = this.state;
-    this.fetchSearchResults(searchQuery, page);
-  };
-  handleItemsPerPageChange = (itemsPerPage: number) => {
-    this.setState({ itemsPerPage });
-  };
-  render() {
-    const {
-      searchQuery,
-      searchResults,
-      loading,
-      currentPage,
-      totalPages,
-      itemsPerPage,
-    } = this.state;
 
-    return (
-      <div className="container">
+  const handlePageChange = (page: number) => {
+    dispatch(setPage(page));
+  };
+
+  const handleItemsPerPageChange = (itemsPerPage: number) => {
+    dispatch(setPage(1));
+    dispatch(fetchSearchResults({ query: searchQuery, page: 1, itemsPerPage }));
+  };
+
+  return (
+    <div className="container">
+      <div>
+        <SearchInput
+          searchQuery={searchQuery}
+          onSearchQueryChange={handleSearchQueryChange}
+          onSearchClick={handleSearchClick}
+        />
+
         <div>
-          <SearchInput
-            searchQuery={searchQuery}
-            onSearchQueryChange={this.handleSearchQueryChange}
-            onSearchClick={this.handleSearchClick}
-          />
-
-          <div>
-            <label htmlFor="itemsPerPage">Items per Page:</label>
-            <input
-              type="number"
-              id="itemsPerPage"
-              value={itemsPerPage}
-              onChange={(e) =>
-                this.handleItemsPerPageChange(Number(e.target.value))
-              }
-            />
-          </div>
-
-          {loading ? (
-            <div>Loading...</div>
-          ) : (
-            <div id="bottom-section">
-              {searchResults.slice(0, itemsPerPage).map((planet: Planet) => (
-                <SummaryCard key={planet.name} planet={planet} />
-              ))}
-            </div>
-          )}
-
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={this.handlePageChange}
-            itemsPerPage={itemsPerPage}
-            onItemsPerPageChange={this.handleItemsPerPageChange}
+          <label htmlFor="itemsPerPage">Items per Page:</label>
+          <input
+            type="number"
+            id="itemsPerPage"
+            value={itemsPerPage}
+            onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
           />
         </div>
+
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <div id="bottom-section">
+            {searchResults
+              .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+              .map((planet) => (
+                <SummaryCard key={planet.name} planet={planet} />
+              ))}
+          </div>
+        )}
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
 export default App;
