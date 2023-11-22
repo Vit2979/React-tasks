@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from './redux/store';
-import { setSearchQuery, fetchSearchResults, setPage, selectSearchQuery, selectSearchResults, selectLoading, selectCurrentPage, selectTotalPages, selectItemsPerPage } from './redux/searchSlice';
+import { setSearchQuery, fetchSearchResults, setPage } from './redux/searchSlice';
 import SearchInput from './components/SearchInput';
 import SummaryCard from './components/SummaryCard';
 import Pagination from './components/Pagination';
@@ -15,7 +15,7 @@ const App: React.FC = () => {
   const totalPages = useSelector((state: RootState) => state.search.totalPages);
   const itemsPerPage = useSelector((state: RootState) => state.search.itemsPerPage);
 
-  const dispatch = useDispatch<AppDispatch>(); // Исправленный тип для диспетчера
+  const dispatch = useDispatch<AppDispatch>(); 
 
     const handleSearchClick = async () => {
     const trimmedSearchQuery = searchQuery.trim();
