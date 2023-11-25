@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import './SummaryCard.css';
 
+export interface Planet {
+  climate: string;
+  name: string;
+  terrain: string;
+}
 interface SummaryCardProps {
-  planet: {
-    climate: string;
-    rotation_period: number;
-    orbital_period: number;
-    name: string;
-    terrain: string;
-  };
+  planet: Planet;
 }
 
 const SummaryCard: React.FC<SummaryCardProps> = ({ planet }) => {
@@ -30,19 +29,21 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ planet }) => {
         onClick={handleClick}
       >
         <h3>{planet.name}</h3>
-        <p>Climate: {planet.climate}</p>
-        <p>Orbital period: {planet.orbital_period}</p>
-        <p>Rotation period: {planet.rotation_period}</p>
+        <p>Climate: {planet.climate}</p>   
         <p>Terrain: {planet.terrain}</p>
       </div>
       {isClicked && (
         <>
-          <div className="summary-card-overlay" onClick={handleDuplicateClick} />
-          <div className="summary-card-duplicate" onClick={handleDuplicateClick}>
+          <div
+            className="summary-card-overlay"
+            onClick={handleDuplicateClick}
+          />
+          <div
+            className="summary-card-duplicate"
+            onClick={handleDuplicateClick}
+          >
             <h3>{planet.name}</h3>
             <p>Climate: {planet.climate}</p>
-            <p>Orbital period: {planet.orbital_period}</p>
-            <p>Rotation period: {planet.rotation_period}</p>
             <p>Terrain: {planet.terrain}</p>
           </div>
         </>
