@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { ThemeContext } from './ThemeContext';
 
 interface SearchInputProps {
   searchQuery: string;
@@ -6,28 +7,33 @@ interface SearchInputProps {
   onSearchClick: () => void;
 }
 
-class SearchInput extends React.Component<SearchInputProps> {
-  componentDidMount() {
-    this.props.onSearchClick();
-  }
+const SearchInput: React.FC<SearchInputProps> = ({
+  searchQuery,
+  onSearchQueryChange,
+  onSearchClick,
+}) => {
+  const { theme } = useContext(ThemeContext);
 
-  render() {
-    const { searchQuery, onSearchQueryChange, onSearchClick } = this.props;
+  const handleSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearchQueryChange(e.target.value);
+  };
 
-    return (
-      <div id="top-section">
-        <input
-          type="text"
-          value={searchQuery}
-          onClick={() => onSearchQueryChange('')}
-          onChange={(e) => onSearchQueryChange(e.target.value)}
-        />
-        <button type="button" onClick={onSearchClick}>
-          Search
-        </button>
-      </div>
-    );
-  }
-}
+  const handleSearchClick = () => {
+    onSearchClick();
+  };
+
+  return (
+    <div id="top-section" className={theme}>
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={handleSearchQueryChange}
+      />
+      <button type="button" onClick={handleSearchClick}>
+        Search
+      </button>
+    </div>
+  );
+};
 
 export default SearchInput;

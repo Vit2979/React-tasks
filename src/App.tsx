@@ -1,82 +1,71 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from './redux/store';
-import { setSearchQuery, fetchSearchResults, setPage } from './redux/searchSlice';
-import SearchInput from './components/SearchInput';
-import SummaryCard from './components/SummaryCard';
+import React, { useState, useEffect } from 'react';
+import { ThemeProvider } from './components/ThemeContext';
 import Pagination from './components/Pagination';
-import './App.css';
+import SearchInput from './components/SearchInput';
+import SummaryCard, { Planet } from './components/SummaryCard';
 
 const App: React.FC = () => {
-  const searchQuery = useSelector((state: RootState) => state.search.query);
-  const searchResults = useSelector((state: RootState) => state.search.results);
-  const loading = useSelector((state: RootState) => state.search.loading);
-  const currentPage = useSelector((state: RootState) => state.search.currentPage);
-  const totalPages = useSelector((state: RootState) => state.search.totalPages);
-  const itemsPerPage = useSelector((state: RootState) => state.search.itemsPerPage);
+  const [planets, setPlanets] = useState<Planet[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const dispatch = useDispatch<AppDispatch>(); 
+  useEffect(() => {
+    // Fetch planet data from an API
+    const fetchPlanets = async () => {
+      const response = await fetch('https://swapi.dev/api/planets/');
+      const data = await response.json();
+      setPlanets(data.results);
+    };
+    fetchPlanets();
+  }, []);
 
-    const handleSearchClick = async () => {
-    const trimmedSearchQuery = searchQuery.trim();
-    await dispatch(setSearchQuery(trimmedSearchQuery));
-    await dispatch(fetchSearchResults({ query: trimmedSearchQuery, page: 1, itemsPerPage }));
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
   };
 
   const handleSearchQueryChange = (query: string) => {
-    dispatch(setSearchQuery(query));
+    setSearchQuery(query);
   };
 
-  const handlePageChange = (page: number) => {
-    dispatch(setPage(page));
+  const handleSearchClick = () => {
+    // Perform search logic
   };
 
-  const handleItemsPerPageChange = (itemsPerPage: number) => {
-    dispatch(setPage(1));
-    dispatch(fetchSearchResults({ query: searchQuery, page: 1, itemsPerPage }));
-  };
+  const filteredPlanets = planets.filter((planet) =>
+    planet.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentPlanets = filteredPlanets.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <div className="container">
-      <div>
-        <SearchInput
-          searchQuery={searchQuery}
-          onSearchQueryChange={handleSearchQueryChange}
-          onSearchClick={handleSearchClick}
-        />
-
-        <div>
-          <label htmlFor="itemsPerPage">Items per Page:</label>
-          <input
-            type="number"
-            id="itemsPerPage"
-            value={itemsPerPage}
-            onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-          />
-        </div>
-
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <div id="bottom-section">
-            {searchResults
-              .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-              .map((planet) => (
-                <SummaryCard key={planet.name} planet={planet} />
-              ))}
-          </div>
-        )}
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={handleItemsPerPageChange}
-        />
+    <ThemeProvider>
+      <SearchInput
+        searchQuery={searchQuery}
+        onSearchQueryChange={handleSearchQueryChange}
+        onSearchClick={handleSearchClick}
+      />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(filteredPlanets.length / itemsPerPage)}
+        onPageChange={handlePageChange}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={handleItemsPerPageChange}
+      />
+      <div className="summary-card-container">
+        {currentPlanets.map((planet) => (
+          <SummaryCard key={planet.name} planet={planet} />
+        ))}
       </div>
-    </div>
+    </ThemeProvider>
   );
 };
 
 export default App;
+

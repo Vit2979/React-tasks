@@ -1,26 +1,35 @@
-  .summary-card-container {
-    display: flex;
-  
-    align-items: center;
-  }
-  
-  .summary-card {
-    background-color: white;
-    padding: 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
-  }
-  
-  .summary-card.clicked {
-    background-color: red;
-  }
-  
-  .summary-card-duplicate {
-    background-color: lightblue;
-    padding: 10px;
-    margin-bottom: 10px;
-    margin-left: 220px;
-      }
+.summary-card-container {
+  display: flex;
+  align-items: center;
+}
+
+.summary-card {
+  background-color: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.summary-card.clicked {
+  background-color: #ff0000;
+}
+
+.summary-card.dark {
+  background-color: #333;
+  color: #fff;
+}
+
+.summary-card-duplicate {
+  background-color: #add8e6;
+  padding: 10px;
+  margin-bottom: 10px;
+  margin-left: 220px;
+}
+
+.summary-card-duplicate.dark {
+  background-color: #1a5275;
+  color: #fff;
+}
 
 .summary-card-overlay {
   position: fixed;
@@ -31,4 +40,8 @@
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 9999;
   cursor: not-allowed;
+}
+
+.summary-card-overlay.dark {
+  background-color: rgba(255, 255, 255, 0.5);
 }
