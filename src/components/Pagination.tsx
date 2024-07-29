@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { ThemeContext } from './ThemeContext';
 
 interface PaginationProps {
   currentPage: number;
@@ -15,6 +16,8 @@ const Pagination: React.FC<PaginationProps> = ({
   itemsPerPage,
   onItemsPerPageChange,
 }) => {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
   const handlePageClick = (page: number) => {
     onPageChange(page);
   };
@@ -43,7 +46,7 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="pagination">
+    <div className={`pagination ${theme}`}>
       {renderPageNumbers()}
       <div>
         <label htmlFor="itemsPerPage">Items per Page:</label>
@@ -54,6 +57,7 @@ const Pagination: React.FC<PaginationProps> = ({
           onChange={handleItemsPerPageChange}
         />
       </div>
+      <button onClick={toggleTheme}>Toggle Theme</button>
     </div>
   );
 };
