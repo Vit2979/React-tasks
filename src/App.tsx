@@ -11,7 +11,7 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Fetch planet data from an API
+    
     const fetchPlanets = async () => {
       const response = await fetch('https://swapi.dev/api/planets/');
       const data = await response.json();
@@ -33,7 +33,7 @@ const App: React.FC = () => {
   };
 
   const handleSearchClick = () => {
-    // Perform search logic
+   
   };
 
   const filteredPlanets = planets.filter((planet) =>
