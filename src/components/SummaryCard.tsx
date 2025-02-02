@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 import './SummaryCard.css';
 
 interface SummaryCardProps {
@@ -11,44 +11,58 @@ interface SummaryCardProps {
   };
 }
 
-const SummaryCard: React.FC<SummaryCardProps> = ({ planet }) => {
-  const [isClicked, setIsClicked] = useState(false);
+interface SummaryCardState {
+  isClicked: boolean;
+}
 
-  const handleClick = () => {
-    setIsClicked(!isClicked);
+class SummaryCard extends Component<SummaryCardProps, SummaryCardState> {
+  constructor(props: SummaryCardProps) {
+    super(props);
+    this.state = {
+      isClicked: false,
+    };
+  }
+
+  handleClick = () => {
+    this.setState({ isClicked: !this.state.isClicked });
   };
 
-  const handleDuplicateClick = (e: React.MouseEvent) => {
+  handleDuplicateClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsClicked(false);
+    this.setState({ isClicked: false });
   };
 
-  return (
-    <div className="summary-card-container">
-      <div
-        className={`summary-card ${isClicked ? 'clicked' : ''}`}
-        onClick={handleClick}
-      >
-        <h3>{planet.name}</h3>
-        <p>Climate: {planet.climate}</p>
-        <p>Orbital period: {planet.orbital_period}</p>
-        <p>Rotation period: {planet.rotation_period}</p>
-        <p>Terrain: {planet.terrain}</p>
+  render() {
+    const { planet } = this.props;
+    const { isClicked } = this.state;
+
+    return (
+      <div className="summary-card-container">
+        <div
+          className={`summary-card ${isClicked ? 'clicked' : ''}`}
+          onClick={this.handleClick}
+        >
+          <h3>{planet.name}</h3>
+          <p>Climate: {planet.climate}</p>
+          <p>Orbital period: {planet.orbital_period}</p>
+          <p>Rotation period: {planet.rotation_period}</p>
+          <p>Terrain: {planet.terrain}</p>
+        </div>
+        {isClicked && (
+          <>
+            <div className="summary-card-overlay" onClick={this.handleDuplicateClick} />
+            <div className="summary-card-duplicate" onClick={this.handleDuplicateClick}>
+              <h3>{planet.name}</h3>
+              <p>Climate: {planet.climate}</p>
+              <p>Orbital period: {planet.orbital_period}</p>
+              <p>Rotation period: {planet.rotation_period}</p>
+              <p>Terrain: {planet.terrain}</p>
+            </div>
+          </>
+        )}
       </div>
-      {isClicked && (
-        <>
-          <div className="summary-card-overlay" onClick={handleDuplicateClick} />
-          <div className="summary-card-duplicate" onClick={handleDuplicateClick}>
-            <h3>{planet.name}</h3>
-            <p>Climate: {planet.climate}</p>
-            <p>Orbital period: {planet.orbital_period}</p>
-            <p>Rotation period: {planet.rotation_period}</p>
-            <p>Terrain: {planet.terrain}</p>
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
+    );
+  }
+}
 
 export default SummaryCard;

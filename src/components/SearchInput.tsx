@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 interface SearchInputProps {
   searchQuery: string;
@@ -6,7 +6,7 @@ interface SearchInputProps {
   onSearchClick: () => void;
 }
 
-class SearchInput extends React.Component<SearchInputProps> {
+class SearchInput extends Component<SearchInputProps> {
   componentDidMount() {
     this.props.onSearchClick();
   }

@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React, { Component } from 'react';
 
 interface PaginationProps {
   currentPage: number;
@@ -9,12 +8,13 @@ interface PaginationProps {
   onItemsPerPageChange: (itemsPerPage: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
-  const handlePageClick = (page: number) => {
-    onPageChange(page);
+class Pagination extends Component<PaginationProps> {
+  handlePageClick = (page: number) => {
+    this.props.onPageChange(page);
   };
 
-  const renderPageNumbers = () => {
+  renderPageNumbers = () => {
+    const { totalPages, currentPage } = this.props;
     const pageNumbers = [];
 
     for (let i = 1; i <= totalPages; i++) {
@@ -22,7 +22,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         <button
           key={i}
           className={i === currentPage ? 'active' : ''}
-          onClick={() => handlePageClick(i)}
+          onClick={() => this.handlePageClick(i)}
         >
           {i}
         </button>
@@ -32,11 +32,9 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     return pageNumbers;
   };
 
-  return (
-    <div className="pagination">
-      {renderPageNumbers()}
-    </div>
-  );
-};
+  render() {
+    return <div className="pagination">{this.renderPageNumbers()}</div>;
+  }
+}
 
 export default Pagination;
