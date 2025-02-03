@@ -1,6 +1,6 @@
 import React, { Component, ReactNode } from 'react';
 
-// Это интерфейс для пропсов ErrorBoundary
+
 interface ErrorBoundaryProps {
   children: ReactNode;
 }
@@ -22,12 +22,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   static getDerivedStateFromError(): ErrorBoundaryState {
-    // Обновляем state, чтобы отобразить fallback UI.
+    
     return { hasError: true, error: null, errorInfo: null };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    // Можно логировать ошибку в сервис ошибок, например.
+
     this.setState({
       error,
       errorInfo,

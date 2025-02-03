@@ -3,6 +3,7 @@ import SearchInput from './components/SearchInput';
 import SummaryCard from './components/SummaryCard';
 import Pagination from './components/Pagination';
 import './App.css';
+
 interface Planet {
   climate: string;
   rotation_period: number;
@@ -10,6 +11,7 @@ interface Planet {
   name: string;
   terrain: string;
 }
+
 interface AppState {
   searchQuery: string;
   searchResults: Planet[];
@@ -17,6 +19,7 @@ interface AppState {
   currentPage: number;
   totalPages: number;
   itemsPerPage: number;
+  triggerError: boolean;
 }
 
 class App extends Component<object, AppState> {
@@ -29,6 +32,7 @@ class App extends Component<object, AppState> {
       currentPage: 1,
       totalPages: 1,
       itemsPerPage: 10,
+      triggerError: false,
     };
   }
 
@@ -59,15 +63,17 @@ class App extends Component<object, AppState> {
       });
 
       localStorage.setItem('searchQuery', query);
-    } catch (error) {
-      this.setState({ loading: false });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Ошибка:', error.message);
+        this.setState({ loading: false });
+      }
     }
   };
 
   handleSearchClick = () => {
     const { searchQuery } = this.state;
     const trimmedSearchQuery = searchQuery.trim();
-
     this.fetchSearchResults(trimmedSearchQuery);
   };
 
@@ -85,11 +91,15 @@ class App extends Component<object, AppState> {
   };
 
   triggerError = () => {
-    throw new Error('Test error button clicked!');
+    this.setState({ triggerError: true });
   };
 
   render() {
-    const { searchQuery, searchResults, loading, currentPage, totalPages, itemsPerPage } = this.state;
+    const { searchQuery, searchResults, loading, currentPage, totalPages, itemsPerPage, triggerError } = this.state;
+
+    if (triggerError) {
+      throw new Error('Test error button clicked!');
+    }
 
     return (
       <div className="container">
