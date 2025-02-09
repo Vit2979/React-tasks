@@ -10,11 +10,21 @@ module.exports = {
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
-
   extensionsToTreatAsEsm: ['.ts'],
   globals: {
     'ts-jest': {
       useESM: true,
+    },
+  },
+  collectCoverage: true, 
+  coverageReporters: ['text', 'lcov'], 
+  coverageDirectory: 'coverage', 
+  coverageThreshold: { 
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
     },
   },
 };

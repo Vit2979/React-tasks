@@ -1,8 +1,12 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SearchInput from './components/SearchInput';
 import SummaryCard from './components/SummaryCard';
 import Pagination from './components/Pagination';
+import NotFound from './pages/NotFound';
+import useSearchQuery from './hooks/useSearchQuery';
 import './App.css';
+
 interface Planet {
   climate: string;
   rotation_period: number;
@@ -10,123 +14,100 @@ interface Planet {
   name: string;
   terrain: string;
 }
-interface AppState {
-  searchQuery: string;
-  searchResults: Planet[];
-  loading: boolean;
-  currentPage: number;
-  totalPages: number;
-  itemsPerPage: number;
-}
-class App extends Component<object, AppState> {
-  constructor(props: object) {
-    super(props);
-    this.state = {
-      searchQuery: '',
-      searchResults: [],
-      loading: false,
-      currentPage: 1,
-      totalPages: 1,
-      itemsPerPage: 10,
-    };
-  }
-  componentDidMount() {
-    const searchQuery = localStorage.getItem('searchQuery');
+
+const App: React.FC = () => {
+  const { searchQuery, setSearchQuery } = useSearchQuery();
+  const [searchResults, setSearchResults] = useState<Planet[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    fetchPlanets();
+  }, []);
+
+  useEffect(() => {
     if (searchQuery) {
-      this.setState({ searchQuery });
-      this.fetchSearchResults(searchQuery);
+      fetchSearchResults(searchQuery);
     }
-  }
-  fetchSearchResults = async (query: string, page: number = 1) => {
+  }, [searchQuery]);
+
+  const fetchPlanets = async () => {
     try {
-      this.setState({ loading: true });
+      setLoading(true);
+      let allPlanets: Planet[] = [];
+      let nextUrl: string | null = 'https://swapi.dev/api/planets/';
+      
+      while (nextUrl) {
+        const response = await fetch(nextUrl);
+        const data = await response.json();
+        allPlanets = [...allPlanets, ...data.results];
+        nextUrl = data.next; 
+      }
 
-      const url = query
-        ? `https://swapi.dev/api/planets/?search=${query}&page=${page}`
-        : `https://swapi.dev/api/planets/?page=${page}`;
+      setSearchResults(allPlanets);
+      setTotalPages(Math.ceil(allPlanets.length / itemsPerPage));
+    } catch (error) {
+      console.error('Ошибка при загрузке всех планет:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const fetchSearchResults = async (query: string) => {
+    try {
+      setLoading(true);
+      const url = `https://swapi.dev/api/planets/?search=${query}`;
       const response = await fetch(url);
       const data = await response.json();
 
-      this.setState({
-        searchResults: data.results || [],
-        loading: false,
-        currentPage: page,
-        totalPages: Math.ceil(data.count / this.state.itemsPerPage),
-      });
-
-      localStorage.setItem('searchQuery', query);
+      setSearchResults(data.results || []);
+      setTotalPages(Math.ceil(data.count / itemsPerPage));
+      setCurrentPage(1);
     } catch (error) {
-      this.setState({ loading: false });
+      console.error('Ошибка при поиске:', error);
+    } finally {
+      setLoading(false);
     }
   };
-  handleSearchClick = () => {
-    const { searchQuery } = this.state;
-    const trimmedSearchQuery = searchQuery.trim();
 
-    this.fetchSearchResults(trimmedSearchQuery);
-  };
-  handleSearchQueryChange = (query: string) => {
-    this.setState({ searchQuery: query });
-  };
-  handlePageChange = (page: number) => {
-    const { searchQuery } = this.state;
-    this.fetchSearchResults(searchQuery, page);
-  };
-  handleItemsPerPageChange = (itemsPerPage: number) => {
-    this.setState({ itemsPerPage });
-  };
-  render() {
-    const {
-      searchQuery,
-      searchResults,
-      loading,
-      currentPage,
-      totalPages,
-      itemsPerPage,
-    } = this.state;
-
-    return (
+  return (
+    <Router>
       <div className="container">
-        <div>
-          <SearchInput
-            searchQuery={searchQuery}
-            onSearchQueryChange={this.handleSearchQueryChange}
-            onSearchClick={this.handleSearchClick}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <SearchInput searchQuery={searchQuery} onSearchQueryChange={setSearchQuery} />
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  itemsPerPage={itemsPerPage}
+                  onItemsPerPageChange={setItemsPerPage}
+                />
+                {loading ? (
+                  <div>Loading...</div>
+                ) : (
+                  <div id="bottom-section">
+                    {searchResults
+                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .map((planet) => (
+                        <SummaryCard key={planet.name} planet={planet} />
+                      ))}
+                  </div>
+                )}
+              </>
+            }
           />
-
-          <div>
-            <label htmlFor="itemsPerPage">Items per Page:</label>
-            <input
-              type="number"
-              id="itemsPerPage"
-              value={itemsPerPage}
-              onChange={(e) =>
-                this.handleItemsPerPageChange(Number(e.target.value))
-              }
-            />
-          </div>
-
-          {loading ? (
-            <div>Loading...</div>
-          ) : (
-            <div id="bottom-section">
-              {searchResults.slice(0, itemsPerPage).map((planet: Planet) => (
-                <SummaryCard key={planet.name} planet={planet} />
-              ))}
-            </div>
-          )}
-
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={this.handlePageChange}
-            itemsPerPage={itemsPerPage}
-            onItemsPerPageChange={this.handleItemsPerPageChange}
-          />
-        </div>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </div>
-    );
-  }
-}
+    </Router>
+  );
+};
+
 export default App;
+

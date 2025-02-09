@@ -1,51 +1,23 @@
-import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
-import SearchInput from '../components/SearchInput';
 
-test('calls onSearchClick when component is mounted', () => {
-  const onSearchClickMock = jest.fn();
+import SearchInput from '../components/SearchInput'; 
+import { render, screen, fireEvent } from '@testing-library/react';
 
-  render(
-    <SearchInput
-      searchQuery=""
-      onSearchQueryChange={() => {}}
-      onSearchClick={onSearchClickMock}
-    />
-  );
 
-  expect(onSearchClickMock).toHaveBeenCalled();
-});
+describe('SearchInput', () => {
+  it('should call onSearchQueryChange with empty string when search button is clicked and input is empty', () => {
+    const mockOnSearchQueryChange = jest.fn();
+    
+    render(
+      <SearchInput 
+        searchQuery="" 
+        onSearchQueryChange={mockOnSearchQueryChange} 
+      />
+    );
 
-test('calls onSearchQueryChange when input value changes', () => {
-  const onSearchQueryChangeMock = jest.fn();
+    const button = screen.getByRole('button', { name: /search/i });
+   
+    fireEvent.click(button);
 
-  render(
-    <SearchInput
-      searchQuery=""
-      onSearchQueryChange={onSearchQueryChangeMock}
-      onSearchClick={() => {}}
-    />
-  );
-
-  const input = screen.getByRole('textbox');
-  fireEvent.change(input, { target: { value: 'test query' } });
-
-  expect(onSearchQueryChangeMock).toHaveBeenCalledWith('test query');
-});
-
-test('calls onSearchClick when search button is clicked', () => {
-  const onSearchClickMock = jest.fn();
-
-  render(
-    <SearchInput
-      searchQuery=""
-      onSearchQueryChange={() => {}}
-      onSearchClick={onSearchClickMock}
-    />
-  );
-
-  const button = screen.getByRole('button', { name: 'Search' });
-  fireEvent.click(button);
-
-  expect(onSearchClickMock).toHaveBeenCalled();
+    expect(mockOnSearchQueryChange).toHaveBeenCalledWith('');
+  });
 });
